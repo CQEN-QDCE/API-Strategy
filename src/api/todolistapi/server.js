@@ -36,7 +36,14 @@ mongoose.connect(dbConnectionUrl, {useUnifiedTopology: true, useNewUrlParser: tr
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.use(async (req, res, next) => {
+    let proxySecret = req.headers['x-3scale-proxy-secret-token'];
+    if (proxySecret !== 'Shared_secret_sent_from_proxy_to_API_backend_959776164aaafae8') {
+        res.status(401).send('Invalid proxy secret');
+        return;
+    }
+    next();
+});
 
 var routes = require('./routes/todoListRoutes'); //importing route
 routes(app); //register the route
